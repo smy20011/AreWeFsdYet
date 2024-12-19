@@ -1,5 +1,6 @@
 <script lang="ts">
   import cdf from "@stdlib/stats-base-dists-chisquare-cdf";
+  import Katex from "./Katex.svelte";
   import * as _ from 'lodash';
 
   let data = $state([]);
@@ -37,7 +38,9 @@
 
     return {
       version: latestMajorVersion,
-      prob: cdf(verionData.miles / WAYMO_CDE_MILES, verionData.failure)
+      prob: cdf(2 * verionData.miles / WAYMO_CDE_MILES, 2 * verionData.failure),
+      failure: verionData.failure,
+      miles: verionData.miles,
     };
   });
 
@@ -50,6 +53,28 @@
 <main>
   <h1>The latest version of FSD is {fsdProb.version}</h1>
   <h2>The probability of FSD achieving 18,000 miles per critical disengagement is {(fsdProb.prob ?? 0) * 100} %</h2>
+  <h2>How it works?</h2>
+  <p>
+    <span>Random variable </span><Katex math={'V = \\frac{2 TestTime}{MTTF}'}></Katex><span>is distributed </span><Katex math={'\\chi^2'} /><span> with </span><Katex math={'2*Failure'} /><span>degrees of freedom</span>
+  </p>
+  <p>
+    <span>If we want</span><Katex math={'MTTF > 18000'} />
+  </p>
+  <p>
+    <span>Then </span><Katex math={'\\frac{1}{MTTF} < \\frac{1}{18000}'} />
+  </p>
+  <p>
+    <span>Then </span><Katex math={'\\frac{2 TestTime}{MTTF} < \\frac{2 TestTime}{18000}'} />
+  </p>
+  <p>
+    <span>Then </span><Katex math={'P(MTTF > 18000) = P(\\frac{2 TestTime}{MTTF} < \\frac{2 TestTime}{18000}) = ChiCdf(\\frac{2 TestTime}{18000}, 2*Failure)'} />
+  </p>
+  <p>
+    <span>FSD version {fsdProb.version} failed {fsdProb.failure} times in {fsdProb.miles} miles.</span>
+  </p>
+  <p>
+    <Katex math={`ChiCdf(\\frac{2*${fsdProb.miles}}{18000}, 2*${fsdProb.failure}) = ${fsdProb.prob}`} />
+  </p>
 </main>
 
 <style>
