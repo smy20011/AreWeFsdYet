@@ -44,6 +44,32 @@
     };
   });
 
+  let headline = $derived.by(() => {
+    let prob = fsdProb.prob ?? 0;
+    if (prob < 1.0 / 1000000) {
+      return "Practically Impossible";
+    }
+    if (prob < 1.0 / 100000) {
+      return "Almost Impossible";
+    }
+    if (prob < 1.0 / 10000) {
+      return "Extremely Unlikely";
+    }
+    if (prob < 1.0 / 1000) {
+      return "Highly Unlikely";
+    }
+    if (prob < 1.0 / 100) {
+      return "Very Unlikely";
+    }
+    if (prob < 1.0 / 10) {
+      return "Unlikely, but have hope";
+    }
+    if (prob < 1.0 / 2) {
+      return "Half Way";
+    }
+    return "Yes!"
+  });
+
   $effect(() => {
     loadData();
   });
@@ -51,9 +77,10 @@
 </script>
 
 <main>
-  <h1>The latest version of FSD is {fsdProb.version}</h1>
-  <h2>The probability of FSD achieving 18,000 miles per critical disengagement is {(fsdProb.prob ?? 0) * 100} %</h2>
-  <h2>How it works?</h2>
+  <h1>{headline}</h1>
+  <h2>The probability of FSD {fsdProb.version} achieving 18,000 miles per critical disengagement is 1 in {Intl.NumberFormat().format(Math.round(1 / (fsdProb.prob ?? 1)))}.</h2>
+  <h3>How does it works?</h3>
+  <p>Math!!!</p>
   <p>
     <span>Random variable </span><Katex math={'V = \\frac{2 TestTime}{MTTF}'}></Katex><span>is distributed </span><Katex math={'\\chi^2'} /><span> with </span><Katex math={'2*Failure'} /><span>degrees of freedom</span>
   </p>
