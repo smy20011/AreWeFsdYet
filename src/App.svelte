@@ -71,6 +71,10 @@
   });
 
   $effect(() => {
+    document.title = headline;
+  });
+
+  $effect(() => {
     loadData();
   });
 
