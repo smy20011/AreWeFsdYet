@@ -73,9 +73,11 @@
 
 <main>
   <h1>{headline}</h1>
-  <h2>The probability of FSD {fsdProb.version} achieving 18,000 miles per critical disengagement is 1 in {Intl.NumberFormat().format(Math.round(1 / (fsdProb.prob ?? 1)))}.</h2>
+  <h2>The probability of FSD {fsdProb.version} achieving RoboTaxi is 1 in {Intl.NumberFormat().format(Math.round(1 / (fsdProb.prob ?? 1)))}.</h2>
+  <Trend fsd_version_data={data} confidence={0.9} />
   <h3>How does it works?</h3>
   <p>Math!!!</p>
+  <p>Waymo have a safety score of 18,000 miles per critical disengagement in 2023.</p>
   <p>
     <span>Random variable </span><Katex math={'V = \\frac{2 TestTime}{MTTF}'}></Katex><span>is distributed </span><Katex math={'\\chi^2'} /><span> with </span><Katex math={'2*Failure'} /><span>degrees of freedom</span>
   </p>
