@@ -2,14 +2,17 @@
   import cdf from "@stdlib/stats-base-dists-chisquare-cdf";
   import Katex from "./Katex.svelte";
   import * as _ from 'lodash';
+    import Trend from "./lib/Trend.svelte";
+    import { groupBySubVersion, type FsdVersionData } from "./lib/fsd_data";
 
-  let data = $state([]);
+  let data: FsdVersionData[] = $state([]);
   const WAYMO_CDE_MILES = 18000;
 
   async function loadData() {
     const response = await fetch("https://raw.githubusercontent.com/smy20011/ScrapingFsd/refs/heads/main/extracted/latest.json");
     const json = await response.json();
-    data = json;
+    let d = json.map((item: any) => ({...item, 'min_date': new Date(item['min_date'])}));
+    data = groupBySubVersion(d);
   }
 
   let fsdProb = $derived.by(() => {
@@ -17,30 +20,18 @@
       return {};
     }
 
-    const majorVersionData = data.map(d => ({
-      miles: d['city_miles'] as number,
-      failure: Math.round(d['runs'] * (1 - d['success_rate'])),
-      version: (d['version'] as string).split('.').slice(0, 2).join(".")
-    }));
-
-    const grouped = _.groupBy(majorVersionData, 'version');
-    const mapped = _.mapValues(grouped, (value) => {
-      const totalMiles = value.map(i => i.miles).reduce((a, b) => a + b);
-      const totalFailure = value.map(i => i.failure).reduce((a, b) => a + b);
-      return {miles: totalMiles, failure: totalFailure};
-    });
-
-    const latestMajorVersion = _.max(_.keys(mapped));
-    if (!latestMajorVersion) {
+    const versionData = _.maxBy(data, d => d.version);
+    if (!versionData) {
       return {};
     }
-    const verionData = mapped[latestMajorVersion];
+
+    let failure = Math.round(versionData.runs * (1 - versionData.success_rate))
 
     return {
-      version: latestMajorVersion,
-      prob: cdf(2 * verionData.miles / WAYMO_CDE_MILES, 2 * verionData.failure),
-      failure: verionData.failure,
-      miles: verionData.miles,
+      version: versionData.version,
+      prob: cdf(2 * versionData.city_miles / WAYMO_CDE_MILES, 2 * failure),
+      failure: failure,
+      miles: versionData.city_miles,
     };
   });
 
